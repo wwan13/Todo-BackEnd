@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from rest_framework.decorators import permission_classes
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 from rest_framework.response import Response
@@ -25,4 +26,4 @@ class TodoViewSet(ModelViewSet):
 
         serializer = TodoSerializer(new_todo)
 
-        return Response(serializer.data)
+        return HttpResponseRedirect('http://localhost:3000/')
