@@ -20,7 +20,7 @@ from todo import models
 from todo.views import TodoViewSet
 
 router = routers.DefaultRouter()
-router.register('todo',TodoViewSet)
+router.register('api/todo',TodoViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls), 
