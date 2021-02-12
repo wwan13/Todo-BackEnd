@@ -32,10 +32,10 @@ class TodoViewSet(ModelViewSet):
 
         return Response(serializer.data)
 
-    @action(detail=True, methods=['patch'])
+    @action(detail=True)
     def set_complete(self, request, *args, **kwargs):
 
-        todo_object = Todo.objects.get(pk = request.id)
+        todo_object = self.get_object()
         todo_object.state = 'complete'
         todo_object.save()
 
