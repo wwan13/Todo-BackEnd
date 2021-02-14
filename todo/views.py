@@ -20,16 +20,14 @@ class TodoViewSet(ModelViewSet):
 
     def get_queryset(self):
 
-        print(self.request.query_params.get('filter', ''))
-
         filter_keyword = self.request.query_params.get('filter', None)
 
         if filter_keyword == 'ongoing':
             queryset = Todo.objects.filter(state = 'ongoing')
         elif filter_keyword == 'complete':
-            queryset = Todo.objects.filter(state = 'ongoing')
+            queryset = Todo.objects.filter(state = 'complete')
         else:
-            queryset = Todo.objects.filter(state = 'ongoing')
+            queryset = super().get_queryset()
         
         return queryset
 
