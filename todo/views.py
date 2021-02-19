@@ -1,52 +1,59 @@
 from django.contrib.auth.models import User
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
 from rest_framework.decorators import permission_classes
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
+from rest_framework.authtoken.models import Token
 from .serializer import TodoSerializer
 from .models import Todo
 
-# Create your views here.
-
 class TodoViewSet(ModelViewSet):
     # queryset = Todo.objects.all()
-    queryset = Todo.objects.order_by('-state', '-timeline')
+    queryset = Todo.objects.all()
     serializer_class = TodoSerializer
 
-    # permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated, ]
 
     def get_queryset(self):
+
+        auth_token = self.request.headers['Authorization']
+        token = Token.objects.get(key = auth_token)
+        current_user = token.user
+        print(auth_token)
+        print(current_user)
 
         filter_keyword = self.request.query_params.get('filter', None)
 
         if filter_keyword == 'ongoing':
-            queryset = Todo.objects.filter(state = 'ongoing')
+            queryset = Todo.objects.filter(state = 'ongoing').filter(author = current_user)
         elif filter_keyword == 'complete':
-            queryset = Todo.objects.filter(state = 'complete')
+            queryset = Todo.objects.filter(state = 'complete').filter(author = current_user)
         else:
-            queryset = super().get_queryset()
+            queryset = Todo.objects.order_by('-state', '-timeline').filter(author = current_user)
         
         return queryset
 
 
-    def create(self, request, *args, **kwargs):
+    def create(self, *args, **kwargs):
         
         new_todo = Todo()
-        # current_user = User.objects.get(username = request.user.name)
-        # new_todo.author = current_user
-        print(request.user.__dict__)
-        new_todo.author = User.objects.get(pk = 1)
 
-        new_todo.contents = request.data["contents"]
-        new_todo.date = request.data["date"]
+        auth_token = self.request.headers['Authorization']
+        token = Token.objects.get(key = auth_token)
+        current_user = token.user
+
+        new_todo.author = current_user
+
+        new_todo.contents = self.request.data["contents"]
+        new_todo.date = self.request.data["date"]
         new_todo.save()
 
         serializer = TodoSerializer(new_todo)
 
         return Response(serializer.data)
+
 
     @action(detail = True)
     def set_complete(self, request, *args, **kwargs):
