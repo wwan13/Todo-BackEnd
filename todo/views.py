@@ -10,9 +10,11 @@ class TodoViewSet(ModelViewSet):
     queryset = Todo.objects.all()
     serializer_class = TodoSerializer
 
-    # permission_classes = [IsAuthenticated, ]
-
     def get_queryset(self):
+
+        # 유저 헤더가 없을 경우 전체 쿼리셋 리턴
+        if 'Authorization' not in self.request.headers:
+            return Todo.objects.all()
 
         auth_token = self.request.headers['Authorization']
         token = Token.objects.get(key = auth_token)
