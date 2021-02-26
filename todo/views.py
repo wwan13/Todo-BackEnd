@@ -16,9 +16,7 @@ class TodoViewSet(ModelViewSet):
 
         auth_token = self.request.headers['Authorization']
         token = Token.objects.get(key = auth_token)
-        current_user = token.user
-        print(auth_token)
-        print(current_user)
+        current_user = token.user 
 
         filter_keyword = self.request.query_params.get('filter', None)
 
