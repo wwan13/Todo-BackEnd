@@ -16,9 +16,7 @@ class TodoViewSet(ModelViewSet):
         if 'Authorization' not in self.request.headers:
             return Todo.objects.all()
 
-        auth_token = self.request.headers['Authorization']
-        token = Token.objects.get(key = auth_token)
-        current_user = token.user 
+        current_user = self.get_current_user()
 
         filter_keyword = self.request.query_params.get('filter', None)
 
@@ -33,20 +31,17 @@ class TodoViewSet(ModelViewSet):
 
 
     def create(self, *args, **kwargs):
-        
-        new_todo = Todo()
 
-        auth_token = self.request.headers['Authorization']
-        token = Token.objects.get(key = auth_token)
-        current_user = token.user
+        current_user = self.get_current_user()
 
-        new_todo.author = current_user
+        todo = Todo(
+            author = current_user,
+            contents = self.request.data["contents"],
+            date = self.request.data["date"]
+        )
+        todo.save()
 
-        new_todo.contents = self.request.data["contents"]
-        new_todo.date = self.request.data["date"]
-        new_todo.save()
-
-        serializer = TodoSerializer(new_todo)
+        serializer = TodoSerializer(todo)
 
         return Response(serializer.data)
 
@@ -72,3 +67,11 @@ class TodoViewSet(ModelViewSet):
         serializer = TodoSerializer(todo_object)
 
         return Response(serializer.data)
+
+    def get_current_user(self):
+
+        auth_token = self.request.headers['Authorization']
+        token = Token.objects.get(key = auth_token)
+        current_user = token.user
+
+        return current_user
