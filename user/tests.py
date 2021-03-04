@@ -8,11 +8,11 @@ class UserTest(TestCase):
 
     client = Client()
 
-    def setUp(self):
-        user = User.objects.create(
-            username = "test123",
-            password = "testpassword1020",
-        )
+    # def setUp(self):
+    #     user = User.objects.create(
+    #         username = "test123",
+    #         password = "testpassword1020",
+    #     )
 
     def test_login_success(self):
 
@@ -24,3 +24,6 @@ class UserTest(TestCase):
         response = self.client.post("/rest-auth/login/", json.dumps(data), content_type="application/json")
 
         self.assertEqual(response.status_code,200)
+
+    def test_registration_success(self):
+        pass
